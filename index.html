@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<title>Visualização Interativa do Invólucro Convexo de Curvas de Bézier</title>
+	<meta charset="utf-8">
+
+	<!--<link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:400' rel='stylesheet' type='text/css'>-->
+	<style>
+		/*svg {*/
+			/*position: absolute;*/
+			/*top: 0;*/
+			/*left: 0;*/
+		/*}*/
+		.curve, .line {
+			fill: none;
+			stroke-width: 1px;
+		}
+		.curve {
+			stroke: red;
+			stroke-width: 3px;
+		}
+		.control {
+			fill: #ccc;
+			stroke: #000;
+			stroke-width: .5px;
+		}
+		.t, .controltext {
+			font-family: "Yanone Kaffeesatz";
+			font-weight: 400;
+			font-size: 11px;
+		}
+	</style>
+
+</head>
+
+<body style="background: #9B8586;" onload="bezierConvex.main()">
+	<div id="center">
+
+		<div id="vis"></div>
+	</div>
+	<script src="scripts/lib/d3.v2.min.js"></script>
+
+	<script src="scripts/bezier.js"></script>
+</body>
+</html>
