@@ -33,13 +33,15 @@
 
 </head>
 
-<body style="background: #9B8586;" onload="bezierConvex.main()">
+<body style="background: #FFF;" onload="bezierConvex.load()">
+	<h1>Visualização Interativa do Invólucro Convexo de Curvas de Bézier</h1>
+	<span>Clique em qualquer lugar na tela para adicionar pontos de controle</span>
 	<div id="center">
-
 		<div id="vis"></div>
 	</div>
 	<script src="scripts/lib/d3.v2.min.js"></script>
-
 	<script src="scripts/bezier.js"></script>
+	<script src="scripts/convex_hull.js"></script>
+
 </body>
 </html>

@@ -1,34 +1,60 @@
 var bezierConvex = (function() {
 
-	var w = 700,
-		h = 700,
+	var w = window.outerWidth,
+		h = window.outerHeight,
 		t = 1,
 		delta = .01,
 		padding = 10,
-		points = [{x: 20, y: 250}, {x: 20, y: 30}, {x: 100, y: 20}, {x: 200, y: 250}, {x:
-			225, y: 125}],
 		bezier = {},
+		points = [],
 		line = d3.svg.line().x(x).y(y),
-		n = 4,
-		b,
+		n = points.length-1,
 		orders = d3.range(n+1, n + 2);
 		
-		var vis = d3.select("body").selectAll("svg")
+	var vis;
+
+	var createFrame = function() {
+		vis = d3.select("body").selectAll("svg")
 			.data(orders)
 			.enter().append("svg:svg")
 			.attr("width", w + 2 * padding)
 			.attr("height", h + 2 * padding)
 			.append("svg:g")
 			.attr("transform", "translate(" + padding + "," + padding + ")");
+	};
+
+	var subscribeClick = function() {
+		d3.select("body").selectAll("svg").on('click', function(d,i){
+			var clickPoint = d3.mouse(this);
+
+			var newPoint = {
+				x: Math.round(clickPoint[0]),
+				y: Math.round(clickPoint[1])
+			};
+
+			points.push(newPoint);
+
+			bezier = {};
+			n = points.length-1;
+			orders = d3.range(n+1, n + 2);
+			d3.select("body").selectAll("svg").remove();
+
+			main();
+
+		});
+	};
 
 	var main = function () {
-		update();
-		
+		createFrame();
+		if (points.length >= 3) {
+			update();
+		}
+
 		vis.selectAll("circle.control")
 			.data(function(d) { return points.slice(0, d) })
 			.enter().append("svg:circle")
 			.attr("class", "control")
-			.attr("r", 17)
+			.attr("r", 8)
 			.attr("cx", x)
 			.attr("cy", y)
 			.call(d3.behavior.drag()
@@ -48,33 +74,9 @@ var bezierConvex = (function() {
 					delete this.__origin__;
 				}));
 
-		vis.append("svg:text")
-			.attr("class", "t")
-			.attr("x", w / 2)
-			.attr("y", h)
-			.attr("text-anchor", "middle");
+		subscribeClick();
 
-		vis.selectAll("text.controltext")
-			.data(function(d) { return points.slice(0, d); })
-			.enter().append("svg:text")
-			.attr("class", "controltext")
-			.attr("dx", "20px")
-			.attr("dy", ".1em")
-			.attr("x", x)
-			.attr("y", y)
-			.text(function(d, i) { return "b" + i + " ("+ d.x + ", "+ d.y + ")" });
-		
-		// animate();
-	}
-
-	function animate() {
-		var last = 0;
-		d3.timer(function(elapsed) {
-			t = (t + (elapsed - last) / 5000) % 1;
-			last = elapsed;
-			update();
-		});
-	}
+	};
 
 	function update() {
 		//Update
@@ -87,7 +89,7 @@ var bezierConvex = (function() {
 		var circle = interpolation.selectAll("circle")
 			.data(Object);
 		circle.enter().append("svg:circle")
-			.attr("r", 3);
+			.attr("r", 8);
 		circle
 			.attr("cx", x)
 			.attr("cy", y);
@@ -104,12 +106,8 @@ var bezierConvex = (function() {
 		curve.enter().append("svg:path")
 			.attr("class", "curve");
 		curve.attr("d", line);
-
-		vis.selectAll("text.controltext")
-			.attr("x", x)
-			.attr("y", y)
-			.text(function(d, i) { return "b" + i + " ("+ d.x + ", "+ d.y + ")" });
 	}
+
 
 	// Casteljau algorithm
 	// Calculates the interpolation points in a level based on previous(Level) interpolated points ,
@@ -146,7 +144,6 @@ var bezierConvex = (function() {
 
 		var curve = bezier[d];
 		if (!curve) {
-			debugger;
 			curve = bezier[d] = [];
 			//Draw the curve with the latest control points x[n][0]
 			// for t varying
@@ -158,17 +155,17 @@ var bezierConvex = (function() {
 		return [curve.slice(0, t / delta + 1)];
 	}
 
-	function x(d) { return d.x; }
-	function y(d) { return d.y; }
+	function x(d) { return d.x-10; }
+	function y(d) { return d.y-10; }
 	function colour(d, i) {
 		return d.length > 1 ? ["#ccc", "yellow", "blue", "green"][i%4] : "red";
 	}
-
 
 	var static = function(event) { event.preventDefault(); }
 	document.body.addEventListener('touchmove', static, false);	
 
 	return {
-		main: main
+		load: main,
+		points: points
 	}
 })();
