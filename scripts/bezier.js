@@ -166,29 +166,32 @@ var bezierConvex = (function() {
 
 	var convexHull = function() {
 		var	ind = 0,
-			position = [],			
-			ancor = points[0],
+			position = [],
 			ext = [],
 			hull = [];
 		
-		/*points = [{x: 57, y: 198}, {x: 217, y: 83}, {x: 446, y: 230}, {x: 248, y: 202}, {x:
-			339, y: 332}, {x: 568, y: 321}, {x: 559, y: 160}, {x: 270, y: 435}, {x: 136, y: 402}, {x:
-			22, y: 324}, {x: 105, y: 60}, {x: 60, y: 60}],*/
+
 				
 		if (points.length < 3) return;
 		
-		for (var i=0; i<points.length; i++){
-			position[i] = {
-				// os valores dos ângulos estão estranhos:
-				// o menor ângulo, por atan2, fica com maior valor
-				angle: Math.atan2(points[i].x, points[i].y),
-				point: points[i]
-		}
-		if(ancor.y > position[i].point.y) {
+		for (var i=1; i<points.length; i++){
+			if(ancor.x > points[i].x) {
 			ind = i;
-			ancor = position[i].point;			
+			ancor = points[i];			
+			}
 		}
+		console.log(ancor);
+		
+		for (var i=0; i<points.length; i++){
+			position[i] = {				
+				angle: calculateAngle(ancor, points[i]),				
+				point: points[i]
+		}		
 	}
+	
+	
+	
+	
 	
 	// guardando a posição do ponto mais extremo para fechar o poligono
 	ext = position[ind];	
@@ -202,6 +205,9 @@ var bezierConvex = (function() {
 	
 	// porque os resultados dos ângulos estão dando ao contrario do que deveria ser
 	position.reverse();
+	
+	console.log("positioaaaaaaa");
+	console.log(position);
 	
 	// ponto mais extremo para fechar o poligono
 	position.push(ext); 	
@@ -244,6 +250,25 @@ var bezierConvex = (function() {
 	console.log("hull final:");
 	console.log(hull);
 
+	function calculateAngle (pointA, pointB){
+		xA = pointA.x;
+		xB = pointB.x;	
+		yA = pointA.y;
+		yB = pointB.y;
+		
+		var x, y, angle;
+		
+		x = xA - xB;
+		y = yA - yB;
+		
+		angle = Math.atan2(x, y);
+		
+	//	console.log("angle");
+	//	console.log(angle);
+		
+		return angle;
+	}
+	
 	// calcula o produto vetorial para determinar se o o giro foi a esquerda ou direita
 	function prodVetorial( x1, x2, x3, y1, y2, y3) {
 		giroEsq = false;
