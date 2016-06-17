@@ -74,13 +74,22 @@ var bezierConvex = (function() {
 				.on("dragend", function() {
 					delete this.__origin__;
 				}));
-
+/* Visualização da posição dos pontos para Testar alinhamento
+			vis.selectAll("text.controltext")
+			.data(function(d) { return points.slice(0, d); })
+			.enter().append("svg:text")
+			.attr("class", "controltext")
+			.attr("dx", "20px")
+			.attr("dy", ".1em")
+			.attr("x", x)
+			.attr("y", y)
+			.text(function(d, i) { return "b" + i + " ("+ d.x + ", "+ d.y + ")" });	
+*/				
 		subscribeClick();
 
 	};
 
 	function update() {
-		//Update
 		var interpolation = vis.selectAll("g")
 			.data(function(d) { return getLevels(d, t); });
 		interpolation.enter().append("svg:g")
@@ -177,46 +186,44 @@ var bezierConvex = (function() {
 			position = [],
 			ancor = points[0],
 			hull = [];
-
+		
 		if (points.length < 3) return;
-
-		for (var i=1; i<points.length; i++){
-			if(ancor.x > points[i].x) {
-				ind = i;
-				ancor = points[i];
-			}
+		
+		// ancor é o primeiro ponto superior esquerdo
+		for (var i=0; i<points.length; i++){
+			if(ancor.y >= points[i].y) {				
+				if(ancor.y == points[i].y && ancor.x > points[i].x) {
+					ind = i;
+					ancor = points[i];
+				} else{
+					ind = i;
+					ancor = points[i];
+				}				 
+			}			
 		}
-		console.log(ancor);
-
+		
 		for (var i=0; i<points.length; i++){
 			position[i] = {
-				angle: calculateAngle(ancor, points[i]),
+				angle: calculateAngle(points[i], ancor),
 				point: points[i]
 			}
 		}
 
-
-		// guardando a posição do ponto mais extremo para fechar o poligono
+		// guarda a posição do ponto mais extremo para fechar o poligono
 		ext = position[ind];
 
-		// Retirar o ponto mais extremo de position
+		// retira o ponto mais extremo de position
 		position.splice(ind, 1);
 
 		position.sort(function(prev, next) {
 			return prev.angle - next.angle;
 		});
-
-		// porque os resultados dos ângulos estão dando ao contrario do que deveria ser
-		position.reverse();
-
-		console.log("positioaaaaaaa");
-		console.log(position);
-
-		// ponto mais extremo para fechar o poligono
+		
+		// recoloca o ponto mais extremo para fechar o poligono
 		position.push(ext);
 
-		// inicializando hull com os dois primeiros elementos: j = 1
-		// a cada iteração são analisados dois pontos na pilha com
+		// inicializando hull com os dois primeiros elementos
+		// a cada iteração são analisados três pontos: dois da pilha e um fora
 		hull.push(ancor);
 		hull.push(position[0].point);
 
@@ -225,35 +232,47 @@ var bezierConvex = (function() {
 			next,
 			giroEsq,
 			x1, x2, x3, y1, y2, y3;
-
+		
 		for (var i=1; i<position.length; i++) {
-
-			next = position[i].point;
-
+			
+			next = position[i].point;	
+			
+			// evita que pontos alinhados com ancor fiquem fora do poligono
+			if (position[i].angle==0 && position[i].point!=ancor){				
+				if (topo.x < next.x){	
+					hull.pop();
+					topo = next;
+					hull.push(next);					
+				}				
+			} else { 
 			x1 = prev.x;
 			x2 = topo.x;
 			x3 = next.x;
 			y1 = prev.y;
 			y2 = topo.y;
 			y3 = next.y;
-
+			
 			prodVetorial(x1, x2, x3, y1, y2, y3);
 
-			// topo é quem esta sendo testado
-			if(giroEsq) {
-				prev = topo;
-			} else {
+			// topo é quem esta sendo testado		
+				if(giroEsq){				
+					hull.push(next);
+					prev = topo;
+					topo = next;
+				} else {	
 				hull.pop(); // retira topo da pilha
-			}
-
-			topo = next;
-			hull.push(next);
+					if(prev == ancor){ // caso base
+						topo = next;
+					} else{ // caso geral
+						topo = prev;
+					prev = hull[hull.length-2];
+					i--;
+					}									
+				}		
+			}			
+			
 		}
-
-		console.log("hull final:");
-		console.log(hull);
-
-
+		
 		function calculateAngle (pointA, pointB){
 			xA = pointA.x;
 			xB = pointB.x;
@@ -264,11 +283,8 @@ var bezierConvex = (function() {
 
 			x = xA - xB;
 			y = yA - yB;
-
-			angle = Math.atan2(x, y);
-
-			//	console.log("angle");
-			//	console.log(angle);
+		
+			angle = Math.atan2(y, x)/(Math.PI/180);
 
 			return angle;
 		}
@@ -281,7 +297,7 @@ var bezierConvex = (function() {
 
 			if (prod > 0){
 				giroEsq = true;
-			}
+			}			
 		}
 
 		return [hull];
