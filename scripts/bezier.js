@@ -6,7 +6,7 @@ var bezierConvex = (function() {
 		delta = .01,
 		padding = 10,
 		bezier = {},
-		points = [],
+		points = [{x:400, y:125}, {x:600, y:125}, {x:300, y:125}],
 		line = d3.svg.line().x(x).y(y),
 		n = points.length-1,
 		orders = d3.range(n+1, n + 2);
@@ -38,7 +38,6 @@ var bezierConvex = (function() {
 			n = points.length-1;
 			orders = d3.range(n+1, n + 2);
 			d3.select("body").selectAll("svg").remove();
-
 			main();
 
 		});
@@ -63,19 +62,24 @@ var bezierConvex = (function() {
 					this.__origin__ = [d.x, d.y];
 				})
 				.on("drag", function(d) {
+					
 					d.x = Math.min(w, Math.max(0, this.__origin__[0] += d3.event.dx));
 					d.y = Math.min(h, Math.max(0, this.__origin__[1] += d3.event.dy));
-					bezier = {};
-					update();
+					if (points.length > 2) {
+						bezier = {};
+						update();
+					}
 					vis.selectAll("circle.control")
 						.attr("cx", x)
 						.attr("cy", y);
+				
 				})
 				.on("dragend", function() {
 					delete this.__origin__;
 				}));
-/* Visualização da posição dos pontos para Testar alinhamento
-			vis.selectAll("text.controltext")
+			 // Visualização da posição dos pontos para Testar alinhamento
+		
+		vis.selectAll("text.controltext")
 			.data(function(d) { return points.slice(0, d); })
 			.enter().append("svg:text")
 			.attr("class", "controltext")
@@ -84,7 +88,7 @@ var bezierConvex = (function() {
 			.attr("x", x)
 			.attr("y", y)
 			.text(function(d, i) { return "b" + i + " ("+ d.x + ", "+ d.y + ")" });	
-*/				
+				
 		subscribeClick();
 
 	};

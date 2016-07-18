@@ -22,11 +22,7 @@ var convexHull = function() {
 				point: points[i]
 		}		
 	}
-	
-	
-	
-	
-	
+
 	// guardando a posição do ponto mais extremo para fechar o poligono
 	ext = position[ind];	
 	
