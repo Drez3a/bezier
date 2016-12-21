@@ -3,10 +3,10 @@ var bezierConvex = (function() {
 	var w = window.outerWidth,
 		h = window.outerHeight,
 		t = 1,
-		delta = .01,
+		delta = .1,
 		padding = 10,
 		bezier = {},
-		points = [{x:400, y:125}, {x:600, y:125}, {x:300, y:125}],
+		points = [],
 		line = d3.svg.line().x(x).y(y),
 		n = points.length-1,
 		orders = d3.range(n+1, n + 2);
@@ -79,15 +79,15 @@ var bezierConvex = (function() {
 				}));
 			 // Visualização da posição dos pontos para Testar alinhamento
 		
-		vis.selectAll("text.controltext")
-			.data(function(d) { return points.slice(0, d); })
-			.enter().append("svg:text")
-			.attr("class", "controltext")
-			.attr("dx", "20px")
-			.attr("dy", ".1em")
-			.attr("x", x)
-			.attr("y", y)
-			.text(function(d, i) { return "b" + i + " ("+ d.x + ", "+ d.y + ")" });	
+		// vis.selectAll("text.controltext")
+		// 	.data(function(d) { return points.slice(0, d); })
+		// 	.enter().append("svg:text")
+		// 	.attr("class", "controltext")
+		// 	.attr("dx", "20px")
+		// 	.attr("dy", ".1em")
+		// 	.attr("x", x)
+		// 	.attr("y", y)
+		// 	.text(function(d, i) { return "b" + i + " ("+ d.x + ", "+ d.y + ")" });	
 				
 		subscribeClick();
 
